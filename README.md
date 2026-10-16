@@ -1,44 +1,68 @@
 # patina-launcher
 
-The app launcher: a menu of every installed app, opened from the bar's Sector F button or the
-Super key, which filters as you type and starts the one you pick.
+An app launcher in the style of [Patina](https://github.com/Sector-F-Labs/patina): a menu of
+every installed app that filters as you type and starts the one you pick. It's the launcher of
+the Patina desktop, and runs on its own on any Wayland desktop: on sway, Hyprland, river, KDE
+or COSMIC as an overlay, and on GNOME as a centred window, much as wofi is used.
 
-## On the desktop
+## Using it
 
-It opens at the bar's left end, like a menu from its button. The apps are listed by name with
-their icons; typing filters them by name, then words of the name, then the generic name,
-keywords, comment and program. Up and Down choose, Enter or a click starts one, Escape, a click
-elsewhere or the button again closes it.
+The apps are listed by name with their icons. Typing filters them: names starting with what you
+typed first, then words of the name, then anything else that matches (generic name, keywords,
+comment, the program). Up and Down (or Ctrl+P and Ctrl+N) choose, Enter or a click starts one;
+Escape, a click elsewhere or switching away closes it.
 
-## How it fits in
+Running `patina-launcher` while it's open closes it, so bind one key to it:
 
-- **Started by** the bar's launcher button (with `PATINA_SKIN` and `PATINA_BAR_EDGE`) or the
-  compositor's Super key (which leaves the skin and edge to the bar's config). A second run
-  closes the open one over its socket (patina-shell's `Single`), so one button toggles it.
-- **Where apps come from** (`apps.rs`, ADR-0010): the `.desktop` files in every XDG data
-  directory, the user's first, honouring `NoDisplay`, `Hidden`, `TryExec` and
-  `OnlyShowIn`/`NotShowIn` for the desktop name `Patina`. And folder apps, `~/Apps/Name.app`
-  with an `app.toml` (`folders.rs`, ADR-0035), read by the shared
-  patina-apps crate that Files uses too (its own repository on remotes, ADR-0036): copy one in and
-  it's listed, delete it and it's gone.
-- **Starting an app:** the command line from the entry (field codes removed), in a terminal if
-  it asks for one (`$TERMINAL`, else foot), in its own process group so it outlives the
-  launcher. Folder apps run from the home folder.
-- **Icons** (`icons.rs`) are looked up in the icon theme (Adwaita, then hicolor and pixmaps) or
-  taken from the app's folder, and decoded on a thread, so the list shows at once.
-- **Drawn** on a layer-shell surface with the keyboard, through patina-shell. On a compositor
-  without layer shell (GNOME) it opens instead as a borderless window with the launcher centred,
-  closing on Escape, a click around it or switching away, as wofi does: bind a key to
-  `patina-launcher` in GNOME's settings or wbindkeys, and the same key closes it again.
+- **sway**: `bindsym $mod+d exec patina-launcher`
+- **Hyprland**: `bind = SUPER, D, exec, patina-launcher`
+- **GNOME**: Settings → Keyboard → Custom Shortcuts, command `/home/you/.local/bin/patina-launcher`
+- **[wbindkeys](https://github.com/divanvisagie/wbindkeys)**: `bind("ALT+E", "/home/you/.local/bin/patina-launcher")`
 
-## Code
+On a layer-shell compositor it opens at the bottom-left corner, as a menu from a bar's button
+(`PATINA_BAR_EDGE=top` for the top-left). On GNOME, which has no layer shell, it opens centred
+over the windows ([ADR-0004](docs/adr/0004-a-centred-window-on-gnome.md)).
 
-`main.rs` (one copy, the surface, icons arriving), `ui.rs` (the list and search box), `apps.rs`
-(.desktop entries, search, launching), `folders.rs` (folder apps through patina-apps),
-`icons.rs`.
+## Where the apps come from
 
-## Running
+- **Installed apps**, from the `.desktop` files in every XDG data directory, the user's own first
+  (`~/.local/share/applications`, `/usr/share/applications`, Flatpak's and Snap's exports),
+  leaving out hidden ones, ones whose `TryExec` is missing, and ones meant only for other
+  desktops ([ADR-0001](docs/adr/0001-apps-from-desktop-entries.md)).
+- **Folder apps** in `~/Apps`: an app as a folder, as on a Mac, `Name.app` with an `app.toml`
+  saying how to run it. Copy one in to install it, delete it to uninstall
+  ([ADR-0002](docs/adr/0002-folder-apps-in-apps.md)). They're read by
+  [patina-apps](https://github.com/Sector-F-Labs/patina-apps), which
+  Files, the Patina file manager, shares
+  ([ADR-0003](docs/adr/0003-folder-apps-through-patina-apps.md)).
+
+Apps start in their own process group, so they outlive the launcher; ones that ask for a
+terminal get `$TERMINAL`, or foot. Icons come from the icon theme (Adwaita, then hicolor and
+pixmaps) or the app's folder, decoded on a thread so the list shows at once.
+
+## Looks
+
+It wears a Patina skin: `PATINA_SKIN` names one, else the Patina bar's
+(`~/.config/patina-bar/config.toml`), else the Default skin. In the Patina desktop the bar's
+button passes its skin and edge, so the launcher matches the bar and opens from it.
+
+## Install
 
 ```sh
-cargo run -p patina-launcher      # on a layer-shell compositor, e.g. inside make run
+make install          # ~/.local/bin/patina-launcher (PREFIX=~/.local)
 ```
+
+It builds with Rust and needs nothing from the system but a Wayland compositor: it draws in
+software ([patina-shell](https://github.com/Sector-F-Labs/patina-shell)). Its Patina
+dependencies come from GitHub, not crates.io.
+
+## Develop
+
+```sh
+make check            # tests and clippy
+make run
+```
+
+`src/apps.rs` (.desktop entries, search, starting apps), `src/folders.rs` (folder apps),
+`src/icons.rs`, `src/ui.rs` (the list and search box), `src/main.rs` (one copy per display, the
+surface). Decisions are in [docs/adr](docs/adr/README.md).
