@@ -992,7 +992,7 @@ dependencies = [
 [[package]]
 name = "patina-shell"
 version = "0.1.0"
-source = "git+https://github.com/Sector-F-Labs/patina-shell#6d267df4435862df01c944d85606e06b2d2d6174"
+source = "git+https://github.com/Sector-F-Labs/patina-shell#05f0f8afa423c10434164e0cd4a7bba1c6424409"
 dependencies = [
  "egui",
  "patina-ui",
