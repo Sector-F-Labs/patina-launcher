@@ -19,8 +19,9 @@ Running `patina-launcher` while it's open closes it, so bind one key to it:
 - **GNOME**: Settings → Keyboard → Custom Shortcuts, command `/home/you/.local/bin/patina-launcher`
 - **[wbindkeys](https://github.com/divanvisagie/wbindkeys)**: `bind("ALT+E", "/home/you/.local/bin/patina-launcher")`
 
-On a layer-shell compositor it opens at the bottom-left corner, as a menu from a bar's button
-(`PATINA_BAR_EDGE=top` for the top-left). On GNOME, which has no layer shell, it opens centred
+On a layer-shell compositor it opens at the button that opened it, when the bar says where that
+is (`PATINA_OPEN_AT`, as patina-bar sets it); otherwise at the bottom-left corner, as a menu from
+a bar's button (`PATINA_BAR_EDGE=top` for the top-left). On GNOME, which has no layer shell, it opens centred
 over the windows ([ADR-0004](docs/adr/0004-a-centred-window-on-gnome.md)).
 
 ## Where the apps come from

@@ -83,14 +83,16 @@ fn run() -> Result<(), String> {
     });
     let launcher = ui::Launcher::new(apps, piece::skin("patina-launcher"), start_icons);
 
+    // At the bar's button, wherever it is; else on the bar's edge, at the
+    // left, clear of the bar's reserved strip.
+    let (anchor, margin, exclusive_zone) = piece::opening(SIZE, GAP, Anchor::LEFT);
     let options = Options {
         namespace: "patina-launcher".into(),
         layer: Layer::Overlay,
-        anchor: piece::bar_edge() | Anchor::LEFT,
+        anchor,
         size: SIZE,
-        // 0 keeps it clear of the bar's reserved strip.
-        exclusive_zone: 0,
-        margin: (GAP, 0, GAP, GAP),
+        exclusive_zone,
+        margin,
         keyboard: KeyboardInteractivity::Exclusive,
         per_output: false,
         toplevels: false,
