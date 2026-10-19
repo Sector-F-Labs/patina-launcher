@@ -6,10 +6,6 @@ use std::path::{Path, PathBuf};
 
 use egui::ColorImage;
 
-/// The theme searched first. A lookup that misses it falls back to
-/// hicolor, where apps install their own icons, then to the pixmaps folder.
-const THEME: &str = "Adwaita";
-
 /// Finds `name` (an icon name, or a file path as some entries give) as a
 /// file, near `size` pixels.
 pub fn find(name: &str, size: u16) -> Option<PathBuf> {
@@ -19,7 +15,10 @@ pub fn find(name: &str, size: u16) -> Option<PathBuf> {
     }
     freedesktop_icons::lookup(name)
         .with_size(size)
-        .with_theme(THEME)
+        // The theme chosen in Patina's Settings; a lookup that misses it
+        // falls back to hicolor, where apps install their own icons, then
+        // to the pixmaps folder.
+        .with_theme(&patina_apps::icon::theme())
         .with_cache()
         .find()
 }
