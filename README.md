@@ -1,3 +1,5 @@
+> **Moved.** This project now lives in [patina-desktop](https://github.com/Sector-F-Labs/patina-desktop/tree/master/launcher), in the `launcher/` folder, with its history. This repository is no longer updated.
+
 # patina-launcher
 
 An app launcher in the style of [Patina](https://github.com/Sector-F-Labs/patina): a menu of
